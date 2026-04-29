@@ -1,0 +1,19 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+int* flatten(int** matrix, int r, int c) {
+    int *arr = new int[r*c];
+    for ( int i = 0;i<r;i++){
+        for ( int j = 0; j<c; j++){
+            arr[i*c+j] = matrix[i][j];
+        }
+    }
+    return arr;
+}
+int main() {
+    
+    return 0;
+}
