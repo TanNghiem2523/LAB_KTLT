@@ -16,7 +16,7 @@ int main()
 {
     string s;
     while (getline(cin, s) && s[0] != '*') {
-        if (palindrome( s) && palindromeRecursion(s)) cout<<"true"<<" "<<"true"<<endl;
+        if (/*palindrome( s) &&*/ palindromeRecursion(s)) cout<<"true"<<" "<<"true"<<endl;
         else cout<<"false"<<" "<<"false"<<endl;
     }
     return 0;

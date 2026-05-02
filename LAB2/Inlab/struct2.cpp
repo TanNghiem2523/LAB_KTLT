@@ -1,3 +1,17 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+struct SCP {
+    int id;
+    int objClass;
+    string speConProcedures;
+    string description;
+    string* addendums;
+    int numAddendums;
+};
 string convertToString(SCP obj) {
     string s;
     s += "Item #: SCP-";
