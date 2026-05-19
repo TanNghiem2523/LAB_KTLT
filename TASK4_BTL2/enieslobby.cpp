@@ -1,0 +1,699 @@
+#include "eniesLobby.h"
+
+/*
+ * BattleContext
+ */
+BattleContext::BattleContext() {
+    turnCount = 0;
+    morale = 0;
+    alarmLevel = 0;
+    rescueProgress = 0;
+    escapeProgress = 0;
+    busterCallTimer = 0;
+    mainGateDestroyed = false;
+    robinRescued = false;
+    bridgeOpened = false;
+    battleEnded = false;
+    resultCode = "";
+}
+
+void BattleContext::nextTurn() {
+    turnCount++;
+}
+
+/*
+ * Character
+ */
+Character::Character() {
+    name = "";
+    hp = 0;
+    maxHp = 0;
+    atk = 0;
+    def = 0;
+    speed = 0;
+    energy = 0;
+    alive = false;
+}
+
+Character::Character(string name, int hp, int atk, int def, int speed, int energy) {
+    this->name = name;
+    this->hp = hp;
+    maxHp = hp;
+    this->atk =atk;
+    this->def =def;
+    this->speed=speed;
+    this->energy= energy;
+    alive = (hp>0);
+}
+
+Character::~Character() {
+    // TODO: implement if needed
+}
+
+int Character::attack(Building* target, BattleContext& context) {
+    return 0;
+}
+
+int Character::specialSkill(Building* target, BattleContext& context) {
+    return 0;
+}
+
+void Character::endTurn(BattleContext& context) {
+    return ;
+}
+
+void Character::receiveDamage(int damage) {
+    int realDamage = damage - def;
+    if (realDamage > 0){
+        hp -=realDamage;
+        if(hp<=0) {
+            hp = 0;
+            alive = false;
+        }
+    }
+}
+
+bool Character::isAlive() const {
+    // TODO: implement
+    return alive;
+}
+
+string Character::getName() const {
+    // TODO: implement
+    return name;
+}
+
+int Character::getHP() const {
+    // TODO: implement
+    return hp;
+}
+
+int Character::getEnergy() const {
+    // TODO: implement
+    return energy;
+}
+
+bool Character::isStrawHat() const {
+    return false;
+}
+
+bool Character::isCP9() const {
+    return false;
+}
+
+/*
+ * StrawHat
+ */
+StrawHat::StrawHat() : Character() {
+    bounty = 0;
+}
+
+StrawHat::StrawHat(string name, int hp, int atk, int def,
+                   int speed, int energy, long long bounty)
+                    :Character( name,  hp,  atk,  def, speed,  energy)
+{
+    defeatedEnemy = false; 
+    this->bounty = bounty;
+    this->maxHp = hp;
+}
+
+bool StrawHat::isStrawHat() const {
+    return true;
+}
+string StrawHat::str() const {
+    return "StrawHat[name=" + name + ", hp=" + to_string(hp) + ", atk=" + to_string(atk) + ", def=" + to_string(def) + ", speed=" + to_string(speed)+ ", energy=" + to_string(energy) + ", bounty=" +to_string(bounty) + "]";
+}
+
+/*
+ * Luffy
+ */
+Luffy::Luffy(string name, int hp, int atk, int def,
+             int speed, int energy, long long bounty):StrawHat(name,hp,atk,def,speed,energy,bounty) 
+             { 
+    this->maxHp = hp;
+}
+int Luffy::attack(Character* target, BattleContext& context) {
+    int damage = 0;
+    if (hp > ceil(maxHp*0.5)) damage = atk;
+    else if ( (hp > ceil(maxHp*0.3))&& (hp<=ceil(maxHp*0.5)))  damage = ceil(atk*1.15);
+    else if ( (hp <= ceil(maxHp*0.3))) damage = ceil(atk*1.3);
+    bool wasAlive = target->isAlive();
+    int realDam = damage - target->getDEF();
+    if (realDam<0) realDam = 0;
+    target->receiveDamage(damage);
+    if ( target->isAlive()!= 1 && wasAlive){
+        context.morale+=5;
+        if(context.morale>100) context.morale = 100;
+        defeatedEnemy =true;    
+    }
+    return realDam;
+    return 0;
+}
+
+int Luffy::specialSkill(Character* target, BattleContext& context) {
+    if(energy >= 20 && hp >=ceil(maxHp*0.15)){
+        int damage = ceil(atk*2);
+        energy-= 20;
+        if ( energy < 0) energy = 0;
+        speed+=15;
+        atk+=15;
+        context.alarmLevel+=10;
+        if ( context.alarmLevel > 100) context.alarmLevel = 100;
+        hp-=ceil(maxHp*0.08);
+        if (hp<=0) {hp = 0; alive = false;}
+        bool wasAlive = target->isAlive();
+        int realDam = damage - target->getDEF();
+        if (realDam<0) realDam = 0;
+        target->receiveDamage(damage);
+        if ( target->isAlive()!= 1 && wasAlive) {
+            context.morale+=5;
+            if(context.morale>100) context.morale = 100;
+            defeatedEnemy =true;
+        }
+    return realDam;
+    }
+return 0;
+    return 0;
+}
+
+int Luffy::attack(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Luffy::specialSkill(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Luffy::endTurn(BattleContext& context) {
+    if ( hp<=ceil(maxHp*0.3)) {
+        context.morale+=3; 
+        if (context.morale > 100) context.morale = 100;
+    }
+    if (defeatedEnemy){
+        energy+=5;
+        if ( energy >100) energy = 100;
+        defeatedEnemy = false;
+    }   
+    }
+
+/*
+ * Zoro
+ */
+Zoro::Zoro(string name, int hp, int atk, int def,
+           int speed, int energy, long long bounty) {
+    // TODO: implement
+}
+
+int Zoro::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Zoro::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Zoro::attack(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Zoro::specialSkill(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Zoro::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Sanji
+ */
+Sanji::Sanji(string name, int hp, int atk, int def,
+             int speed, int energy, long long bounty) {
+    // TODO: implement
+}
+
+int Sanji::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Sanji::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Sanji::attack(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Sanji::specialSkill(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Sanji::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Nami
+ */
+Nami::Nami(string name, int hp, int atk, int def,
+           int speed, int energy, long long bounty) {
+    // TODO: implement
+}
+
+int Nami::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Nami::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Nami::attack(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Nami::specialSkill(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Nami::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Chopper
+ */
+Chopper::Chopper(string name, int hp, int atk, int def,
+                 int speed, int energy, long long bounty) {
+    // TODO: implement
+}
+
+int Chopper::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Chopper::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Chopper::attack(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Chopper::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Usopp
+ */
+Usopp::Usopp(string name, int hp, int atk, int def,
+             int speed, int energy, long long bounty) {
+    // TODO: implement
+}
+
+int Usopp::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Usopp::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Usopp::attack(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Usopp::specialSkill(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Usopp::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Franky
+ */
+Franky::Franky(string name, int hp, int atk, int def,
+               int speed, int energy, long long bounty) {
+    // TODO: implement
+}
+
+int Franky::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Franky::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Franky::attack(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Franky::specialSkill(Building* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Franky::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * CP9Agent
+ */
+CP9Agent::CP9Agent() : Character() {
+    doriki = 0;
+}
+
+CP9Agent::CP9Agent(string name, int hp, int atk, int def,
+                   int speed, int energy, int doriki) {
+    // TODO: implement
+}
+
+bool CP9Agent::isCP9() const {
+    // TODO: implement
+}
+
+string CP9Agent::str() const {
+    // TODO: implement
+    return "";
+}
+
+/*
+ * Lucci
+ */
+Lucci::Lucci(string name, int hp, int atk, int def,
+             int speed, int energy, int doriki) {
+    // TODO: implement
+}
+
+int Lucci::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Lucci::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Lucci::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Kaku
+ */
+Kaku::Kaku(string name, int hp, int atk, int def,
+           int speed, int energy, int doriki) {
+    // TODO: implement
+}
+
+int Kaku::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Kaku::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Kaku::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Jabra
+ */
+Jabra::Jabra(string name, int hp, int atk, int def,
+             int speed, int energy, int doriki) {
+    // TODO: implement
+}
+
+int Jabra::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Jabra::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Jabra::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Blueno
+ */
+Blueno::Blueno(string name, int hp, int atk, int def,
+               int speed, int energy, int doriki) {
+    // TODO: implement 
+}
+
+int Blueno::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Blueno::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Blueno::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Kalifa
+ */
+Kalifa::Kalifa(string name, int hp, int atk, int def,
+               int speed, int energy, int doriki) {
+    // TODO: implement
+}
+
+int Kalifa::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Kalifa::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Kalifa::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Kumadori
+ */
+Kumadori::Kumadori(string name, int hp, int atk, int def,
+                   int speed, int energy, int doriki) {
+    // TODO: implement
+}
+
+int Kumadori::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Kumadori::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Kumadori::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Fukurou
+ */
+Fukurou::Fukurou(string name, int hp, int atk, int def,
+                 int speed, int energy, int doriki) {
+    // TODO: implement
+}
+
+int Fukurou::attack(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+int Fukurou::specialSkill(Character* target, BattleContext& context) {
+    // TODO: implement
+    return 0;
+}
+
+void Fukurou::endTurn(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Building
+ */
+Building::Building(string name, int hp) {
+    // TODO: implement
+}
+
+Building::~Building() {
+    // TODO: implement if needed
+}
+
+void Building::receiveDamage(int damage) {
+    // TODO: implement
+}
+
+bool Building::isDestroyed() const {
+    // TODO: implement
+    return destroyed;
+}
+
+void Building::onDestroyed(BattleContext& context) {
+    return ;
+}
+
+string Building::str () const {
+    // TODO: implement
+    return "";
+}
+
+/*
+ * MainGate
+ */
+MainGate::MainGate(string name, int hp) : Building(name, hp) {}
+
+void MainGate::applyEffect(BattleContext& context) {
+    // TODO: implement
+}
+
+void MainGate::onDestroyed(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * Courthouse
+ */
+Courthouse::Courthouse(string name, int hp) : Building(name, hp) {}
+
+void Courthouse::applyEffect(BattleContext& context) {
+    // TODO: implement
+}
+
+void Courthouse::onDestroyed(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * TowerOfJustice
+ */
+TowerOfJustice::TowerOfJustice(string name, int hp) : Building(name, hp) {}
+
+void TowerOfJustice::applyEffect(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * BridgeOfHesitation
+ */
+BridgeOfHesitation::BridgeOfHesitation(string name, int hp) : Building(name, hp) {}
+
+void BridgeOfHesitation::applyEffect(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * BusterCallShip
+ */
+BusterCallShip::BusterCallShip(string name, int hp) : Building(name, hp) {}
+
+void BusterCallShip::applyEffect(BattleContext& context) {
+    // TODO: implement
+}
+
+void BusterCallShip::onDestroyed(BattleContext& context) {
+    // TODO: implement
+}
+
+/*
+ * EniesLobbyBattle
+ */
+EniesLobbyBattle::EniesLobbyBattle(const string& filename) {
+    // TODO: implement
+}
+
+EniesLobbyBattle::~EniesLobbyBattle() {
+    // TODO: implement
+}
+
+void EniesLobbyBattle::loadFromFile(const string& filename) {
+    // TODO: implement
+}
+
+void EniesLobbyBattle::addStrawHat(Character* character) {
+    // TODO: implement
+}
+
+void EniesLobbyBattle::addCP9Agent(Character* character) {
+    // TODO: implement
+}
+
+void EniesLobbyBattle::addBuilding(Building* building) {
+    // TODO: implement
+}
+
+void EniesLobbyBattle::buildTurnOrder() {
+    // TODO: implement
+}
+
+void EniesLobbyBattle::runBattle() {
+    // TODO: implement
+}
+
+void EniesLobbyBattle::processTurn(Character* character) {
+    // TODO: implement
+}
+
+void EniesLobbyBattle::processBuildings() {
+    // TODO: implement
+}
+
+void EniesLobbyBattle::checkEndCondition() {
+    // TODO: implement
+}
+
+string EniesLobbyBattle::getResult() const {
+    // TODO: implement
+    return "";
+}
