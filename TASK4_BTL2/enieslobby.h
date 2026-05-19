@@ -46,6 +46,28 @@ public:
     int getmaxHp() const{
         return maxHp;
     }
+    int cutSpeed(int Sp){
+        speed-=Sp;
+        if ( speed<0) speed = 0;
+        return speed; 
+    }
+    int cutDEF(int d){
+        def -=d;
+        if ( def<0) def = 0;
+        return def; 
+    }
+    int restoreHp(int a){
+        if (!isAlive()) return 0;
+            hp+=a;
+            if (hp > maxHp) hp = maxHp;
+            return hp;
+    }
+    int getSpeed() const{
+        return speed;
+    }
+    int getAtk() const{
+        return atk;
+    }
     virtual bool isStrawHat() const;
     virtual bool isCP9() const;
 
@@ -151,7 +173,7 @@ public:
 
     int attack(Building* target, BattleContext& context);
     int specialSkill(Building* target, BattleContext& context);
-
+    bool flagAttack;
     void endTurn(BattleContext& context);
 };
 
@@ -180,7 +202,7 @@ public:
     CP9Agent();
     CP9Agent(string name, int hp, int atk, int def,
              int speed, int energy, int doriki);
-
+    bool defeatedEnemy;
     virtual bool isCP9() const;
     virtual string str() const;
 };
@@ -274,7 +296,7 @@ public:
     bool bridgeOpened;
     bool battleEnded;
     string resultCode;
-
+    int minStrawHatHP;
 public:
     BattleContext();
     void nextTurn();
@@ -299,7 +321,12 @@ public:
 
     virtual void applyEffect(BattleContext& context) = 0;
     virtual void onDestroyed(BattleContext& context);
-
+    int getHP() const{
+        return hp;
+    }
+    int getmaxHP() const{
+        return maxHP;
+    }
     virtual string str () const;
 };
 
@@ -370,6 +397,7 @@ private:
     TurnNode* turnOrder;
     BattleContext context;
     int maxTurns;
+    
 
 public:
     EniesLobbyBattle(const string& filename);
