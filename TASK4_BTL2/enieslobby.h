@@ -43,6 +43,9 @@ public:
     int getDEF()const{
         return def;
     }
+    int getmaxHp() const{
+        return maxHp;
+    }
     virtual bool isStrawHat() const;
     virtual bool isCP9() const;
 

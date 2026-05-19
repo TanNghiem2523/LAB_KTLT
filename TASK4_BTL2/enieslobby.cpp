@@ -147,7 +147,6 @@ int Luffy::attack(Character* target, BattleContext& context) {
         defeatedEnemy =true;    
     }
     return realDam;
-    return 0;
 }
 
 int Luffy::specialSkill(Character* target, BattleContext& context) {
@@ -165,24 +164,18 @@ int Luffy::specialSkill(Character* target, BattleContext& context) {
         int realDam = damage - target->getDEF();
         if (realDam<0) realDam = 0;
         target->receiveDamage(damage);
-        if ( target->isAlive()!= 1 && wasAlive) {
-            context.morale+=5;
-            if(context.morale>100) context.morale = 100;
-            defeatedEnemy =true;
+        if ( target->isAlive()!= 1 && wasAlive){
+        defeatedEnemy =true;    
         }
     return realDam;
     }
 return 0;
-    return 0;
 }
-
 int Luffy::attack(Building* target, BattleContext& context) {
-    // TODO: implement
     return 0;
 }
 
 int Luffy::specialSkill(Building* target, BattleContext& context) {
-    // TODO: implement
     return 0;
 }
 
@@ -202,32 +195,60 @@ void Luffy::endTurn(BattleContext& context) {
  * Zoro
  */
 Zoro::Zoro(string name, int hp, int atk, int def,
-           int speed, int energy, long long bounty) {
-    // TODO: implement
+           int speed, int energy, long long bounty) 
+           :StrawHat(name,hp,atk,def,speed,energy,bounty)
+{
 }
 
 int Zoro::attack(Character* target, BattleContext& context) {
-    // TODO: implement
-    return 0;
+    int damage = atk + ceil(def*0.2);
+    if ( target->getHP() < ceil(target->getmaxHp()*0.4)) damage= ceil(damage*1.15);
+    int realDam = damage - target->getDEF();
+    if (realDam<0) realDam = 0;
+    bool wasAlive = target->isAlive();
+    target->receiveDamage(damage);
+    if ( target->isAlive()!= 1 && wasAlive) {
+        defeatedEnemy =true;
+    }
+    return realDam;
 }
 
 int Zoro::specialSkill(Character* target, BattleContext& context) {
-    // TODO: implement
+    if(energy >= 15){
+        int damage = ceil(atk*2.2);
+        if ( target->getHP() < ceil(target->getmaxHp()*0.5)) damage = ceil(damage*1.5);
+        energy-= 15;    
+        if ( energy < 0) energy = 0;
+        int realDam = damage - target->getDEF();
+        if (realDam<0) realDam = 0;
+        bool wasAlive = target->isAlive();
+        target->receiveDamage(damage);
+        if ( target->isAlive()!= 1 && wasAlive) {
+            context.morale+=4;
+            if(context.morale>100) context.morale = 100;
+            energy+=8;
+            if (energy > 100) energy = 100;
+            defeatedEnemy =true;
+        }   
+    return realDam;
+    }
     return 0;
 }
 
 int Zoro::attack(Building* target, BattleContext& context) {
-    // TODO: implement
     return 0;
 }
 
 int Zoro::specialSkill(Building* target, BattleContext& context) {
-    // TODO: implement
     return 0;
 }
-
 void Zoro::endTurn(BattleContext& context) {
-    // TODO: implement
+    if(defeatedEnemy){
+        context.morale +=6;
+        if (context.morale>100) context.morale = 100;
+        atk = ceil(atk*1.05);
+        defeatedEnemy = false;
+    }
 }
 
 /*
